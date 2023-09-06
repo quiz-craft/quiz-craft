@@ -1,7 +1,9 @@
 fastapi
 uvicorn[standard]
 beanie
-bcrypt
 python-decouple
-fastapi-jwt-auth
 fastapi-mail
+python-multipart
+python-jose
+cryptography
+passlib[bcrypt]

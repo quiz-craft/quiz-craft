@@ -1,24 +1,24 @@
 """
 User router
 """
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response
-from fastapi_jwt_auth import AuthJWT
 
 from backend_service.models.user import User, UserOut, UserUpdate
-from backend_service.util.current_user import current_user
+from backend_service.util.jwt import get_current_user
 
 router = APIRouter(prefix="/user", tags=["User"])
 
 
 @router.get("", response_model=UserOut)
-async def get_user(user: User = Depends(current_user)):
+async def get_user(user: Annotated[User, Depends(get_current_user)]):
     """Returns the current user"""
     return user
 
 
 @router.patch("", response_model=UserOut)
-async def update_user(update: UserUpdate, user: User = Depends(current_user)):
+async def update_user(update: UserUpdate, user: Annotated[User, Depends(get_current_user)]):
     """Update allowed user fields"""
     user = user.copy(update=update.dict(exclude_unset=True))
     await user.save()
@@ -26,8 +26,7 @@ async def update_user(update: UserUpdate, user: User = Depends(current_user)):
 
 
 @router.delete("")
-async def delete_user(auth: AuthJWT = Depends()):
+async def delete_user(user: Annotated[User, Depends(get_current_user)]):
     """Delete current user"""
-    auth.jwt_required()
-    await User.find_one(User.email == auth.get_jwt_subject()).delete()
+    await User.find_one(User.username == user.username).delete()
     return Response(status_code=204)

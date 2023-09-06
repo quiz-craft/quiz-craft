@@ -15,15 +15,13 @@ class UserAuth(BaseModel):
     """User register and login auth"""
 
     username: str
-    email: EmailStr
     password: str
 
 
 class UserUpdate(BaseModel):
     """Updatable user fields"""
 
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: EmailStr | None = None
 
     # User information
     first_name: Optional[str] = None
@@ -33,7 +31,7 @@ class UserUpdate(BaseModel):
 class UserOut(UserUpdate):
     """User fields returned to the client"""
 
-    email: Indexed(EmailStr, unique=True)
+    username: Indexed(str, unique=True)
     disabled: bool = False
 
 
@@ -44,13 +42,13 @@ class User(Document, UserOut):
     email_confirmed_at: Optional[datetime] = None
 
     def __repr__(self) -> str:
-        return f"<User {self.email}>"
+        return f"<User {self.username}>"
 
     def __str__(self) -> str:
-        return self.email
+        return self.username
 
     def __hash__(self) -> int:
-        return hash(self.email)
+        return hash(self.username)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, User):
