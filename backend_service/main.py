@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+"""
+Server main runtime
+"""
 
-app = FastAPI()
+# pylint: disable=unused-import
+
+from backend_service.app import app
+from backend_service.routers.user import router as UserRouter
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World!"}
+app.include_router(UserRouter)
