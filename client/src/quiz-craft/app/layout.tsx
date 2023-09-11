@@ -19,11 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <HeaderComponent/>
-        <main className="flex min-h-screen flex-col items-center justify-normal p-10">
-          {children}
+        <main className="min-h-screen">
+          <HeaderComponent/>
+            <div className="flex flex-col items-center justify-normal p-10">
+              {children}
+            </div>
+          <FooterComponent/>
         </main>
-        <FooterComponent/>
       </body>
     </html>
   )

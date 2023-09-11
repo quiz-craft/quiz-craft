@@ -1,9 +1,42 @@
 "use client";
 
 import React, { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import axios from 'axios';
 
 export default function CreateQuizComponent() {
+
+  const apiUrl = 'http://34.88.249.185:6996/auth/token';
+
+  const requestData = {
+    grant_type: '',
+    username: 'kahe.mehrdad@gmail.com',
+    password: '1234@qwerty',
+    scope: '',
+    client_id: '',
+    client_secret: '',
+  };
+
+  // Convert the request data to URL-encoded form data
+  const formData1 = new URLSearchParams(requestData).toString();
+
+  // Define the headers
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  function sendRequest(){
+    // Make the POST request using axios
+    axios.post(apiUrl, formData1, { headers })
+    .then((response) => {
+      // Handle the response here
+      console.log('Response:', response.data);
+    })
+    .catch((error) => {
+      // Handle errors here
+      console.error('Error:', error);
+    });
+  }
 
   const [formData, setFormData] = useState({
     email: '',
@@ -20,27 +53,30 @@ export default function CreateQuizComponent() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const response = await fetch('YOUR_API_ENDPOINT', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
 
-      if (response.ok) {
-        console.log('Data sent successfully!');
-        setFormData({
-          email: '',
-          password: ''
-        });
-      } else {
-        console.error('Error sending data to the server.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    sendRequest();
+
+    // try {
+    //   const response = await fetch('YOUR_API_ENDPOINT', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(formData),
+    //   });
+
+    //   if (response.ok) {
+    //     console.log('Data sent successfully!');
+    //     setFormData({
+    //       email: '',
+    //       password: ''
+    //     });
+    //   } else {
+    //     console.error('Error sending data to the server.');
+    //   }
+    // } catch (error) {
+    //   console.error('Error:', error);
+    // }
   };
 
   return (
