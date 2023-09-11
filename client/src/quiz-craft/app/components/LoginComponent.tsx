@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function CreateQuizComponent() {
+
   const [formData, setFormData] = useState({
-    topic: 'History of WWII',
-    numQuestions: 10,
-    numChoices: 4,
+    email: '',
+    password: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,7 +20,6 @@ export default function CreateQuizComponent() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const response = await fetch('YOUR_API_ENDPOINT', {
         method: 'POST',
@@ -32,9 +32,8 @@ export default function CreateQuizComponent() {
       if (response.ok) {
         console.log('Data sent successfully!');
         setFormData({
-          topic: '',
-          numQuestions: 10,
-          numChoices: 4
+          email: '',
+          password: ''
         });
       } else {
         console.error('Error sending data to the server.');
@@ -49,55 +48,38 @@ export default function CreateQuizComponent() {
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-2/2 px-3 mb-6 md:mb-0">
-              <h3>Please Choose</h3>
-            </div>
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="topic">
-                Topic
+              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="email">
+                email
               </label>
               <input 
               className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" 
               type="text"
-              id="topic"
-              name="topic" 
-              value={formData.numQuestions} 
+              id="email"
+              name="email" 
+              value={formData.email} 
               onChange={handleChange}
-              placeholder=".Net Core 7.0"/>
+              placeholder=""/>
             </div>
-            <div className="w-full md:w-1/2 px-3">
+            <div className="w-full md:w-2/2 px-3">
               <label 
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Number of questions
+                Password
               </label>
               <input 
               className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              type="number" 
-              id="numQuestions"
-              name="numQuestions"
-              value={formData.numQuestions}
+              type="password" 
+              id="password"
+              name="password"
+              value={formData.password}
               onChange={handleChange} 
-              placeholder="10"/>
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label 
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Number of Choices
-              </label>
-              <input 
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" 
-              type="number" 
-              id="numChoices" 
-              value={formData.numChoices}
-              onChange={handleChange} 
-              placeholder="4"/>
+              placeholder=""/>
             </div>
           </div>
           <div className="flex flex-col">
             <button
               type="submit"
-              className="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-md"
-            >
-              Submit
+              className="bg-blue-400 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-md">
+              Login
             </button>
           </div>
         </form>

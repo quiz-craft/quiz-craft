@@ -1,6 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
-import FormComponent from './components/createQuizComponent';
 import CreateQuizComponent from './components/createQuizComponent';
 
 export default function Home() {
@@ -16,9 +14,7 @@ export default function Home() {
           priority
         />
       </div>
-
       <CreateQuizComponent />
-
     </div>  
   )
 }
