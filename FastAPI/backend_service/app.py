@@ -23,4 +23,4 @@ app.add_middleware(
 async def app_init():
     """Initialize application services"""
     app.db = AsyncIOMotorClient(CONFIG.mongo_uri).account
-    await init_beanie(app.db, document_models=[User]
+    await init_beanie(app.db, document_models=[User])
