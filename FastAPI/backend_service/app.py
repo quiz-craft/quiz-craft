@@ -22,5 +22,8 @@ app.add_middleware(
 @app.on_event("startup")
 async def app_init():
     """Initialize application services"""
-    app.db = AsyncIOMotorClient(CONFIG.mongo_uri).account
+    print(CONFIG.testing == True)
+    db_name = "quiz-craft-test" if CONFIG.testing else "quiz-craft"
+    print(db_name)
+    app.db = AsyncIOMotorClient(CONFIG.mongo_uri)[db_name]
     await init_beanie(app.db, document_models=[User])
