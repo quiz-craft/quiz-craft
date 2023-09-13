@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import FooterComponent from './components/FooterComponent'
 import HeaderComponent from './components/HeaderComponent'
+import BreadcrumbComponent from './components/BereadcrumbComponent'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,11 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="min-h-screen">
+        <main className="flex flex-col h-screen">
           <HeaderComponent/>
-            <div className="flex flex-col items-center justify-normal p-10">
-              {children}
-            </div>
+          <BreadcrumbComponent/>
+          <div className="flex flex-grow flex-col items-center justify-normal m-20 p-10">
+            {children}
+          </div>
           <FooterComponent/>
         </main>
       </body>

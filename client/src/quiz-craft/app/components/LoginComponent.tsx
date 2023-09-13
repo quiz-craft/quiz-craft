@@ -6,6 +6,14 @@ import axios from 'axios';
 export default function CreateQuizComponent() {
 
   const apiUrl = 'http://34.88.249.185:6996/auth/token';
+  const [formData, setFormData] = useState({ 
+    grant_type: '',
+    username: '',
+    password: '',
+    scope: '',
+    client_id: '',
+    client_secret: '', 
+  });
 
   const requestData = {
     grant_type: '',
@@ -16,18 +24,13 @@ export default function CreateQuizComponent() {
     client_secret: '',
   };
 
-  // Convert the request data to URL-encoded form data
-  const formData1 = new URLSearchParams(requestData).toString();
-
-  // Define the headers
-  const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded',
-  };
-
   function sendRequest(){
-    // Make the POST request using axios
-    axios.post(apiUrl, formData1, { headers })
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    const formDataEncoded = new URLSearchParams(formData).toString();
+    axios.post(apiUrl, formDataEncoded, { headers })
     .then((response) => {
       // Handle the response here
       console.log('Response:', response.data);
@@ -37,11 +40,6 @@ export default function CreateQuizComponent() {
       console.error('Error:', error);
     });
   }
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,30 +51,7 @@ export default function CreateQuizComponent() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     sendRequest();
-
-    // try {
-    //   const response = await fetch('YOUR_API_ENDPOINT', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(formData),
-    //   });
-
-    //   if (response.ok) {
-    //     console.log('Data sent successfully!');
-    //     setFormData({
-    //       email: '',
-    //       password: ''
-    //     });
-    //   } else {
-    //     console.error('Error sending data to the server.');
-    //   }
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
   };
 
   return (
@@ -84,15 +59,15 @@ export default function CreateQuizComponent() {
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-2/2 px-3 mb-6 md:mb-0">
-              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="email">
-                email
+              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="username">
+                Email
               </label>
               <input 
               className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" 
               type="text"
-              id="email"
-              name="email" 
-              value={formData.email} 
+              id="username"
+              name="username" 
+              value={formData.username} 
               onChange={handleChange}
               placeholder=""/>
             </div>
