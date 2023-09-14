@@ -76,12 +76,38 @@ User can get their own data after logging in
     Should Be Equal As Strings    ${response.json()}[username]  ${test_user}[username]
 
 
-User should not get data without logging in
+User should not get data without a valid JWT
     ${jwt_token}=   Generate Random String  64
     ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
     ${response}=    GET On Session  quizcraft  /user  headers=${headers}  expected_status=401
     Dictionary Should Not Contain Key    ${response.json()}  username
 
+User should update their own data after logging in
+    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
+    ${jwt_token}=   Create And Authenticate User  ${test_user}
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${update_user}=  Read JSON File   ${CURDIR}/data/user/update.json
+    ${expected_user}=  Read JSON File   ${CURDIR}/data/user/expected.json
+    ${response}=    PATCH On Session  quizcraft  /user  json=${update_user}  headers=${headers}  expected_status=200
+    Dictionaries Should Be Equal    ${response.json()}  ${expected_user}
+
+User should not update their data without a valid JWT
+    ${jwt_token}=   Generate Random String  64
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${update_user}=  Read JSON File   ${CURDIR}/data/user/update.json
+    ${response}=    PATCH On Session  quizcraft  /user  json=${update_user} headers=${headers}  expected_status=401
+    Dictionary Should Not Contain Key    ${response.json()}  username
+
+User should delete their own data after logging in
+    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
+    ${jwt_token}=   Create And Authenticate User  ${test_user}
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${response}=    Delete On Session  quizcraft  /user  headers=${headers}  expected_status=204
+
+User should not delete their own data without valid JWT
+    ${jwt_token}=   Generate Random String  64
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${response}=    Delete On Session  quizcraft  /user  headers=${headers}  expected_status=401
 
 *** Keywords ***
 Create And Authenticate User

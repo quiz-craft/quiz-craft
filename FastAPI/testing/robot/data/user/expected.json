@@ -1,0 +1,8 @@
+{
+  "username": "test_user",
+  "email": "email@test.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "disabled": false,
+  "confirmed": false
+}
