@@ -14,4 +14,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    """Access token data"""
     username: str | None = None

@@ -8,22 +8,18 @@ from datetime import datetime
 from typing import Optional
 
 from beanie import Document, Indexed
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 
 
-class UserAuth(BaseModel):
+class UserRegister(BaseModel):
     """User register and login auth"""
-
     username: str
     password: str
+    email: EmailStr
 
 
 class UserUpdate(BaseModel):
     """Updatable user fields"""
-
-    email: EmailStr | None = None
-
-    # User information
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
@@ -32,7 +28,9 @@ class UserOut(UserUpdate):
     """User fields returned to the client"""
 
     username: Indexed(str, unique=True)
+    email: Indexed(str, unique=True)
     disabled: bool = False
+    confirmed: bool = False
 
 
 class User(Document, UserOut):

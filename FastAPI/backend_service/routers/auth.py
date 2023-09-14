@@ -15,11 +15,13 @@ from backend_service.util.password import verify_password
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-async def authenticate_user(username: str, password: str) -> User:
+async def authenticate_user(username_or_email: str, password: str) -> User:
     """ Check if username exists and password matches"""
-    user = await User.by_username(username)
+    user = await User.by_username(username_or_email)
     if not user:
-        return False
+        user = await User.by_email(username_or_email)
+        if not user:
+            return False
     if not verify_password(password, user.password):
         return False
     return user
@@ -28,7 +30,8 @@ async def authenticate_user(username: str, password: str) -> User:
 @router.post("/token", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """Authenticates and returns the user's JWT"""
-    user = await authenticate_user(form_data.username, form_data.password)
+    username_or_email = form_data.username if form_data.username else form_data.email
+    user = await authenticate_user(username_or_email, form_data.password)
 
     if not user:
         raise HTTPException(
