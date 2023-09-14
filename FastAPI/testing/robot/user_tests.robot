@@ -1,23 +1,74 @@
 *** Settings ***
-Library           REST   http://localhost:6996/
+Library           RequestsLibrary
+Library           Collections
+Library           String
+
 Resource          keywords.resource
-Suite Setup       Clear Test Database
+
+Suite Setup   Run Keywords  Clear Test Database
+...           AND           Create Session  quizcraft   http://localhost:6996
 Test Teardown     Clear Test Database
 
 *** Test Cases ***
-POST Create new user
-    POST        /register        ${CURDIR}/data/user/register.json
-    Output
+Creating new user with correct data should succeed
+    ${test_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    ${response}=  POST On Session  quizcraft  /register  json=${test_user}  expected_status=200
+    Should Be Equal As Strings    ${response.json()}[username]  ${test_user}[username]
 
-POST Create second user
-    POST        /register        ${CURDIR}/data/user/register.json
-    Output
+Creating new user without password should not succeed
+    ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    ${test_user}=  Copy Dictionary  ${default_user}  deepcopy=True
+    Keep In Dictionary  ${test_user}  username
+    ${response}=  POST On Session  quizcraft  /register  json=${test_user}  expected_status=422
 
-POST Create double user
-    POST        /register        ${CURDIR}/data/user/register.json
-    POST        /register        ${CURDIR}/data/user/register.json
-    Output
+Creating new user without username should not succeed
+    ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    ${test_user}=  Copy Dictionary  ${default_user}  deepcopy=True
+    Keep In Dictionary  ${test_user}  password
+    ${response}=  POST On Session  quizcraft  /register  json=${test_user}  expected_status=422
 
-Valid user
-    GET         /user
-    Output
+Creating new user with duplicate username should not succeed
+    ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    POST On Session  quizcraft  /register  json=${default_user}  expected_status=200
+    ${duplicate_user}=  Copy Dictionary  ${default_user}  deepcopy=True
+    Set To Dictionary  ${duplicate_user}  password="newPwd"
+    ${response}=  POST On Session  quizcraft  /register  json=${duplicate_user}  expected_status=409
+
+User should login with correct credentials
+    ${test_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    POST On Session  quizcraft  /register  json=${test_user}  expected_status=200
+    Set To Dictionary   ${test_user}  grant_type=  scope=   client_id=  client_secret=
+    ${response}=  POST On Session  quizcraft  /auth/token  data=${test_user}  expected_status=200
+    Dictionary Should Contain Key    ${response.json()}  access_token
+
+User should not login with incorrect credentials
+    ${test_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    POST On Session  quizcraft  /register  json=${test_user}  expected_status=200
+    Set To Dictionary   ${test_user}  password="incorrectPwd"   grant_type=  scope=   client_id=  client_secret=
+    ${response}=  POST On Session  quizcraft  /auth/token  data=${test_user}  expected_status=401
+    Dictionary Should Not Contain Key    ${response.json()}  access_token
+
+User can get their own data after logging in
+    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
+    ${jwt_token}=   Create And Authenticate User  ${test_user}
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${response}=    GET On Session  quizcraft  /user  headers=${headers}  expected_status=200
+    Should Be Equal As Strings    ${response.json()}[username]  ${test_user}[username]
+
+
+User should not get data without logging in
+    ${jwt_token}=   Generate Random String  64
+    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${response}=    GET On Session  quizcraft  /user  headers=${headers}  expected_status=401
+    Dictionary Should Not Contain Key    ${response.json()}  username
+
+
+*** Keywords ***
+Create And Authenticate User
+  [Arguments]   ${user_data}
+  ${user_data}=   Copy Dictionary  ${user_data}  deep_copy=True
+  POST On Session  quizcraft  /register  json=${user_data}  expected_status=200
+  Set To Dictionary   ${user_data}  grant_type=  scope=   client_id=  client_secret=
+  ${response}=  POST On Session  quizcraft  /auth/token  data=${user_data}  expected_status=200
+  ${auth_token}=  Get From Dictionary   ${response.json()}  access_token
+  [Return]  ${auth_token}

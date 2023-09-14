@@ -1,4 +1,3 @@
 robotframework
 robotframework-requests
-RESTinstance
 pymongo
