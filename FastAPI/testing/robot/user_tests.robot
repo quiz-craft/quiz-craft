@@ -17,26 +17,46 @@ Creating new user with correct data should succeed
 
 Creating new user without password should not succeed
     ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
-    ${test_user}=  Copy Dictionary  ${default_user}  deepcopy=True
-    Keep In Dictionary  ${test_user}  username
-    ${response}=  POST On Session  quizcraft  /register  json=${test_user}  expected_status=422
+    Remove From Dictionary  ${default_user}  password
+    ${response}=  POST On Session  quizcraft  /register  json=${default_user}  expected_status=422
 
 Creating new user without username should not succeed
     ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
-    ${test_user}=  Copy Dictionary  ${default_user}  deepcopy=True
-    Keep In Dictionary  ${test_user}  password
-    ${response}=  POST On Session  quizcraft  /register  json=${test_user}  expected_status=422
+    Remove From Dictionary  ${default_user}  username
+    ${response}=  POST On Session  quizcraft  /register  json=${default_user}  expected_status=422
+
+Creating new user without valid email should not succeed
+    ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    Set To Dictionary  ${default_user}  email=test
+    ${response}=  POST On Session  quizcraft  /register  json=${default_user}  expected_status=422
 
 Creating new user with duplicate username should not succeed
     ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
     POST On Session  quizcraft  /register  json=${default_user}  expected_status=200
     ${duplicate_user}=  Copy Dictionary  ${default_user}  deepcopy=True
-    Set To Dictionary  ${duplicate_user}  password="newPwd"
+    Set To Dictionary  ${duplicate_user}  email=newEmail@test.com
     ${response}=  POST On Session  quizcraft  /register  json=${duplicate_user}  expected_status=409
 
-User should login with correct credentials
+Creating new user with duplicate email should not succeed
+    ${default_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    POST On Session  quizcraft  /register  json=${default_user}  expected_status=200
+    ${duplicate_user}=  Copy Dictionary  ${default_user}  deepcopy=True
+    Set To Dictionary  ${duplicate_user}  username=newUsername
+    ${response}=  POST On Session  quizcraft  /register  json=${duplicate_user}  expected_status=409
+
+User should login with correct username and password
     ${test_user}=  Read JSON File  ${CURDIR}/data/user/register.json
     POST On Session  quizcraft  /register  json=${test_user}  expected_status=200
+    Remove From Dictionary  ${test_user}  email
+    Set To Dictionary   ${test_user}  grant_type=  scope=   client_id=  client_secret=
+    ${response}=  POST On Session  quizcraft  /auth/token  data=${test_user}  expected_status=200
+    Dictionary Should Contain Key    ${response.json()}  access_token
+
+User should login with correct email and password
+    ${test_user}=  Read JSON File  ${CURDIR}/data/user/register.json
+    POST On Session  quizcraft  /register  json=${test_user}  expected_status=200
+    Set To Dictionary  ${test_user}  username   ${test_user}[email]
+    Remove From Dictionary  ${test_user}  email
     Set To Dictionary   ${test_user}  grant_type=  scope=   client_id=  client_secret=
     ${response}=  POST On Session  quizcraft  /auth/token  data=${test_user}  expected_status=200
     Dictionary Should Contain Key    ${response.json()}  access_token
