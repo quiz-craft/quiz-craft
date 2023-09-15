@@ -40,14 +40,15 @@ async def send_verification_email(email: str, token: str):
 async def send_password_reset_email(email: str, token: str):
     """Sends password reset email"""
     # Change this later to public endpoint
-    url = CONFIG.root_url + "/register/reset-password/" + token
-    if CONFIG.mail_console:
+    url = CONFIG.root_url + "/auth/reset-password/" + token
+    if CONFIG.testing:
         print("POST to " + url)
-    else:
-        message = MessageSchema(
-            recipients=[email],
-            subject="Quiz Craft Password Reset",
-            body=f"""Click the link to reset your Quiz Craft account password: {url}\n
-            If you did not request this, please ignore this email
-            """,)
-        await mail.send_message(message)
+        return url, token
+
+    message = MessageSchema(
+        recipients=[email],
+        subject="Quiz Craft Password Reset",
+        body=f"""Click the link to reset your Quiz Craft account password: {url}\n
+        If you did not request this, please ignore this email.
+        """, subtype=MessageType.html)
+    await mail.send_message(message)
