@@ -6,7 +6,7 @@ Library           String
 Resource          keywords.resource
 
 Suite Setup   Run Keywords  Clear Test Database
-...           AND           Create Session  quizcraft   http://localhost:6996
+...           AND           Create Session  quizcraft   http://localhost:3000
 Test Teardown     Clear Test Database
 
 *** Test Cases ***
