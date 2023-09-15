@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 
 from backend_service.util.mail import send_verification_email
 from backend_service.util import jwt
-from backend_service.models.user import User
+from backend_service.models.user import User, UserOut
 
 router = APIRouter(prefix="/mail", tags=["Mail"])
 
@@ -37,7 +37,7 @@ async def request_verification_email(user: Annotated[User, Depends(jwt.get_curre
     return Response(status_code=200)
 
 
-@router.post("/verify/{token}")
+@router.post("/verify/{token}", response_model=UserOut)
 async def verify_email(token: str, user: Annotated[User, Depends(jwt.get_current_user)]):
     """Verify the user's email with the supplied token"""
 
@@ -51,4 +51,4 @@ async def verify_email(token: str, user: Annotated[User, Depends(jwt.get_current
     user.email_confirmed_at = datetime.now(tz=timezone.utc)
     await user.save()
 
-    return Response(status_code=200)
+    return user
