@@ -11,6 +11,8 @@ from pydantic import BaseModel
 class Settings(BaseModel):
     """Server config settings"""
 
+    root_url: str = config("ROOT_URL")
+
     # Mongo Engine settings
     mongo_uri: str = config("MONGO_URI")
 
@@ -18,7 +20,6 @@ class Settings(BaseModel):
     jwt_secret_key: str = config("SECRET_KEY")
 
     # FastMail SMTP server settings
-    mail_console: bool = config("MAIL_CONSOLE", default=False, cast=bool)
     mail_server: str = config("MAIL_SERVER", default="mail.quiz-craft.com")
     mail_port: int = config("MAIL_PORT", default=587, cast=int)
     mail_username: str = config("MAIL_USERNAME", default="")

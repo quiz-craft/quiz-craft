@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional
 
 from beanie import Document, Indexed
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr
 
 
 class UserRegister(BaseModel):
@@ -30,14 +30,13 @@ class UserOut(UserUpdate):
     username: Indexed(str, unique=True)
     email: Indexed(str, unique=True)
     disabled: bool = False
-    confirmed: bool = False
+    email_confirmed_at: datetime | None = None
 
 
-class User(Document, UserOut):
+class User(Document, UserOut):      # pylint: disable=too-many-ancestors
     """User DB representation"""
 
     password: str
-    email_confirmed_at: Optional[datetime] = None
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"

@@ -2,7 +2,7 @@
 Mail server config
 """
 
-from fastapi_mail import FastMail, ConnectionConfig, MessageSchema
+from fastapi_mail import FastMail, ConnectionConfig, MessageSchema, MessageType
 
 from backend_service.config import CONFIG
 
@@ -12,9 +12,10 @@ mail_conf = ConnectionConfig(
     MAIL_FROM=CONFIG.mail_sender,
     MAIL_PORT=CONFIG.mail_port,
     MAIL_SERVER=CONFIG.mail_server,
-    MAIL_TLS=True,
-    MAIL_SSL=False,
-    USE_CREDENTIALS=True,
+    MAIL_STARTTLS=False,
+    MAIL_SSL_TLS=False,
+    USE_CREDENTIALS=False,
+    VALIDATE_CERTS=False
 )
 
 mail = FastMail(mail_conf)
@@ -24,15 +25,16 @@ async def send_verification_email(email: str, token: str):
     """Send user verification email"""
     # Change this later to public endpoint
     url = CONFIG.root_url + "/mail/verify/" + token
-    if CONFIG.mail_console:
+    if CONFIG.testing:
         print("POST to " + url)
-    else:
-        message = MessageSchema(
-            recipients=[email],
-            subject="Quiz Craft Email Verification",
-            body="Welcome to Quiz Craft! We just need to verify your email to begin: "
-            + url,)
-        await mail.send_message(message)
+        return url, token
+
+    message = MessageSchema(
+        recipients=[email],
+        subject="Quiz Craft Email Verification",
+        body="Welcome to Quiz Craft! We just need to verify your email to begin: "
+        + url, subtype=MessageType.html)
+    await mail.send_message(message)
 
 
 async def send_password_reset_email(email: str, token: str):
