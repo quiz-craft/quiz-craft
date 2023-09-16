@@ -1,14 +1,13 @@
 """
 User models
 """
-
-# pylint: disable=too-few-public-methods
-
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
-from beanie import Document, Indexed
-from pydantic import BaseModel, EmailStr
+from beanie import Document, Indexed, Link
+from pydantic import BaseModel, EmailStr, Field
+
+from backend_service.models.quiz import Quiz
 
 
 class UserRegister(BaseModel):
@@ -36,6 +35,7 @@ class UserOut(UserUpdate):
 class User(Document, UserOut):      # pylint: disable=too-many-ancestors
     """User DB representation"""
 
+    quizes_created: List[Link[Quiz]] = Field(default_factory=list)
     password: str
 
     def __repr__(self) -> str:

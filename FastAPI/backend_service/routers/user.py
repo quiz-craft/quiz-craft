@@ -14,6 +14,9 @@ router = APIRouter(prefix="/user", tags=["User"])
 @router.get("", response_model=UserOut)
 async def get_user(user: Annotated[User, Depends(get_current_user)]):
     """Returns the current user"""
+    await user.fetch_all_links()
+    # print(user.quizes_created)
+    # print(type(user.quizes_created[0]))
     return user
 
 
