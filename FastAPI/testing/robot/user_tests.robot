@@ -69,11 +69,10 @@ User should not login with incorrect credentials
     Dictionary Should Not Contain Key    ${response.json()}  access_token
 
 User can get their own data after logging in
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${headers}=   Create Test User And Return Auth Header
     ${response}=    GET On Session  quizcraft  /user  headers=${headers}  expected_status=200
-    Should Be Equal As Strings    ${response.json()}[username]  ${test_user}[username]
+    ${expected_user}=  Read JSON File   ${CURDIR}/data/user/registered.json
+    Dictionaries Should Be Equal    ${response.json()}  ${expected_user}
 
 
 User should not get data without a valid JWT
@@ -83,25 +82,21 @@ User should not get data without a valid JWT
     Dictionary Should Not Contain Key    ${response.json()}  username
 
 User should update their own data after logging in
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
-    ${update_user}=  Read JSON File   ${CURDIR}/data/user/update.json
-    ${expected_user}=  Read JSON File   ${CURDIR}/data/user/expected.json
+    ${headers}=   Create Test User And Return Auth Header
+    ${update_user}=  Read JSON File   ${CURDIR}/data/user/to_update.json
+    ${expected_user}=  Read JSON File   ${CURDIR}/data/user/updated.json
     ${response}=    PATCH On Session  quizcraft  /user  json=${update_user}  headers=${headers}  expected_status=200
     Dictionaries Should Be Equal    ${response.json()}  ${expected_user}
 
 User should not update their data without a valid JWT
     ${jwt_token}=   Generate Random String  64
     ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
-    ${update_user}=  Read JSON File   ${CURDIR}/data/user/update.json
+    ${update_user}=  Read JSON File   ${CURDIR}/data/user/to_update.json
     ${response}=    PATCH On Session  quizcraft  /user  json=${update_user} headers=${headers}  expected_status=401
     Dictionary Should Not Contain Key    ${response.json()}  username
 
 User should delete their own data after logging in
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${headers}=   Create Test User And Return Auth Header
     ${response}=    Delete On Session  quizcraft  /user  headers=${headers}  expected_status=204
 
 User should not delete their own data without valid JWT
@@ -110,9 +105,7 @@ User should not delete their own data without valid JWT
     ${response}=    Delete On Session  quizcraft  /user  headers=${headers}  expected_status=401
 
 User should request email verification after logging in
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${headers}=   Create Test User And Return Auth Header
     ${response}=  POST On Session  quizcraft  /mail/verify  headers=${headers}  expected_status=200
     Dictionary Should Contain Key  ${response.json()}  url  token
 
@@ -123,18 +116,14 @@ User should not request email verification without JWT
     Dictionary Should Not Contain Key  ${response.json()}  url  token
 
 User should verify their email after logging in
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${headers}=   Create Test User And Return Auth Header
     ${response}=  POST On Session  quizcraft  /mail/verify  headers=${headers}  expected_status=200
     ${url}=  Get From Dictionary  ${response.json()}  url
     ${response}=  POST On Session  quizcraft  ${url}  headers=${headers}  expected_status=200
     Should Not Be Empty   ${response.json()}[email_confirmed_at]
 
 User should not verify their email without valid token
-    ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
-    ${jwt_token}=   Create And Authenticate User  ${test_user}
-    ${headers}=   Create Dictionary   Authorization=Bearer ${jwt_token}
+    ${headers}=   Create Test User And Return Auth Header
     ${token}=   Generate Random String  64
     ${response}=  POST On Session  quizcraft  /mail/verify/${token}  headers=${headers}  expected_status=401
 
@@ -163,24 +152,3 @@ User should not reset their password without valid token
     Create User  ${test_user}
     ${token}=   Generate Random String  64
     POST On Session  quizcraft  /auth/reset-password/${token}  json=new_password  expected_status=401
-
-*** Keywords ***
-Create And Authenticate User
-  [Arguments]   ${user_data}
-  Create User   ${user_data}
-  ${auth_token}=  Authenticate User   ${user_data}
-  [Return]  ${auth_token}
-
-Create User
-  [Arguments]   ${user_data}
-  ${user_data}=   Copy Dictionary  ${user_data}  deep_copy=True
-  ${response}=  POST On Session  quizcraft  /register  json=${user_data}  expected_status=200
-  [Return]  ${response}
-
-Authenticate User
-  [Arguments]   ${user_data}
-  ${user_data}=   Copy Dictionary  ${user_data}  deep_copy=True
-  Set To Dictionary   ${user_data}  grant_type=  scope=   client_id=  client_secret=
-  ${response}=  POST On Session  quizcraft  /auth/token  data=${user_data}  expected_status=200
-  ${auth_token}=  Get From Dictionary   ${response.json()}  access_token
-  [Return]  ${auth_token}

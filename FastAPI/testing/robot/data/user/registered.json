@@ -1,0 +1,8 @@
+{
+  "username": "test_user",
+  "email": "email@test.com",
+  "first_name": null,
+  "last_name": null,
+  "disabled": false,
+  "email_confirmed_at": null
+}

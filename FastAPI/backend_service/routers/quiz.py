@@ -36,7 +36,7 @@ async def create_quiz(data: Annotated[QuizCreate, Body()],
 
 @router.patch("/{quiz_id}", response_model=QuizOut)
 async def update_quiz(quiz_id: str, update: Annotated[QuizUpdate, Body()],
-                      _: Annotated[User, Depends(get_current_user)]):
+                      user: Annotated[User, Depends(get_current_user)]):
     """Patch quiz item if authenticated user owns it """
     print(quiz_id)
 
@@ -46,6 +46,12 @@ async def update_quiz(quiz_id: str, update: Annotated[QuizUpdate, Body()],
         raise HTTPException(
             status_code=404,
             detail="Quiz not found!",
+        )
+
+    if quiz.owner_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="User does not have permission to edit this quiz.",
         )
     quiz = quiz.copy(update=update.dict(exclude_unset=True))
     await quiz.save()
@@ -60,7 +66,7 @@ async def delete_quiz(quiz_id: str, user: Annotated[User, Depends(get_current_us
     if quiz is None:
         raise HTTPException(
             status_code=404,
-            detail="Quiz not found!",
+            detail="Quiz not found.",
         )
 
     if quiz.owner_id == user.id:
@@ -72,5 +78,5 @@ async def delete_quiz(quiz_id: str, user: Annotated[User, Depends(get_current_us
 
     raise HTTPException(
         status_code=403,
-        detail="User does not have permission to delete this quiz",
+        detail="User does not have permission to delete this quiz.",
     )
