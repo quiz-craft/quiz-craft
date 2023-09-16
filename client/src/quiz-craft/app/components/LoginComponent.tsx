@@ -14,16 +14,6 @@ export default function CreateQuizComponent() {
     client_id: '',
     client_secret: '', 
   });
-
-  const requestData = {
-    grant_type: '',
-    username: 'kahe.mehrdad@gmail.com',
-    password: '1234@qwerty',
-    scope: '',
-    client_id: '',
-    client_secret: '',
-  };
-
   function sendRequest(){
     const headers = {
       'Accept': 'application/json',
