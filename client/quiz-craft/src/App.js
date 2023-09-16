@@ -6,7 +6,7 @@ import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 import SignUp from "./pages/signup/SignUp";
 import Profile from "./pages/profile/Profile";
-import { isAuthenticated } from "./services/TokenService";
+import { isAuthenticated } from "./services/AuthStoreService";
 
 function App() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(isAuthenticated());

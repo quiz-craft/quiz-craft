@@ -1,4 +1,4 @@
-import { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem } from "./UserTokenService";
+import { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem } from "./LocalStorageService";
 
 export const setToken = (value) => {
     try {
@@ -10,7 +10,8 @@ export const setToken = (value) => {
 
 export const getToken = () => {
     try {
-        return getLocalStorageItem("token");
+        let obj = getLocalStorageItem("token");
+        return obj.access_token
     } catch (error) {
         console.error(`Error in getting user token. Reason: ${error}`);
     }

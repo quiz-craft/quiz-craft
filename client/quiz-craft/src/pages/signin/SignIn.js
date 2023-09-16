@@ -2,7 +2,7 @@ import {Link} from "react-router-dom";
 import { baseUrl } from "../../services/Settings";
 import React, { useState } from 'react';
 import axios from 'axios';
-import { setToken } from "../../services/TokenService";
+import { setToken } from "../../services/AuthStoreService";
 
 const SignIn = ({ handleLogin }) => {
     const [formData, setFormData] = useState({ 
