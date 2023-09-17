@@ -16,6 +16,14 @@ export function login({ email, password }) {
   );
 }
 
-export function getProfile() {
+export function getUser() {
   return client.get("/user");
+}
+
+export function setUser({first_name, last_name}) {
+  return client.patch(
+    "/user",
+    { first_name, last_name },
+    { authorization: true }
+  );
 }
