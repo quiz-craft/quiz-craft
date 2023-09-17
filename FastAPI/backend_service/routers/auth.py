@@ -2,6 +2,7 @@
 Authentication router
 """
 from typing import Annotated
+from datetime import timedelta
 
 from fastapi import APIRouter, HTTPException, Depends, Body, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,6 +15,7 @@ from backend_service.models.user import User, UserOut
 from backend_service.util import jwt
 from backend_service.util.password import verify_password, get_password_hash
 from backend_service.util.mail import send_password_reset_email
+from backend_service.config import CONFIG
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -44,8 +46,8 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # TODO: change hardcode token expiration value to config option
     access_token = jwt.create_access_token(
+        expires_delta=CONFIG.jwt_exipiration_time,
         data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -58,6 +60,7 @@ async def forgot_password(email: Annotated[EmailStr, Body()]):
 
     if user:
         access_token = jwt.create_access_token(
+            expires_delta=timedelta(minutes=15),
             data={"sub": user.username})
 
         url, token = await send_password_reset_email(email, access_token)

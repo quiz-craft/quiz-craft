@@ -3,6 +3,7 @@ FastAPI server configuration
 """
 
 # pylint: disable=too-few-public-methods
+from datetime import timedelta
 
 from decouple import config
 from pydantic import BaseModel
@@ -18,6 +19,9 @@ class Settings(BaseModel):
 
     # Security settings
     jwt_secret_key: str = config("SECRET_KEY")
+    jwt_exipiration_time: timedelta = config(
+        "JWT_EXPIRATION_MINUTES", default=15,
+        cast=lambda m: timedelta(minutes=int(m)))
 
     # FastMail SMTP server settings
     mail_server: str = config("MAIL_SERVER", default="mail.quiz-craft.com")

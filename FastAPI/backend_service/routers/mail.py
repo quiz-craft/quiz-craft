@@ -2,7 +2,7 @@
 Mail router
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -27,8 +27,8 @@ async def request_verification_email(user: Annotated[User, Depends(jwt.get_curre
     if user.disabled:
         raise HTTPException(400, "Your account is disabled")
 
-    token = jwt.create_access_token(
-        data={"sub": user.username})
+    token = jwt.create_access_token(expires_delta=timedelta(minutes=15),
+                                    data={"sub": user.username})
     url, token = await send_verification_email(user.email, token)
 
     if url:

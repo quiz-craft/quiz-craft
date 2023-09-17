@@ -18,8 +18,7 @@ from backend_service.config import CONFIG
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-def create_access_token(data: dict, expires_delta: timedelta |
-                        None = timedelta(minutes=15)):
+def create_access_token(data: dict, expires_delta: timedelta):
     """ Create JWT access token with payload """
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
