@@ -7,6 +7,8 @@ import Footer from "./components/footer/Footer";
 import SignUp from "./pages/signup/SignUp";
 import Profile from "./pages/profile/Profile";
 import { isAuthenticated } from "./services/AuthStoreService";
+import CreateQuiz from "./pages/quiz/create/CreateQuiz";
+import TakeQuiz from "./pages/quiz/take/TakeQuiz";
 
 function App() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(isAuthenticated());
@@ -28,6 +30,8 @@ function App() {
             <Route path="signin" element={<SignIn handleLogin={handleLogin}  />} />
             <Route path="signup" element={<SignUp />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="quiz/create" element={<CreateQuiz />} />
+            <Route path="quiz/take" element={<TakeQuiz />} />
           </Routes>
           </div>
           <Footer/>
