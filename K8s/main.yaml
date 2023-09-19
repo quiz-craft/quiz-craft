@@ -50,7 +50,6 @@ spec:
         image: quiz-craft-api
         ports:
         - containerPort: 3000
-        imagePullPolicy: Never
         env:
         - name: MONGO_URI
           valueFrom:
@@ -80,11 +79,9 @@ kind: Service
 metadata:
   name: backend-api-service
 spec:
-  type: NodePort
   selector:
     app: backend-api
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 3000
-      nodePort: 30000
+      targetPort: backend-api-svc
