@@ -1,0 +1,90 @@
+---
+# Setup mongodb Replicaset using MongoDB Kubernetes Operator. Admin password is read from ESO SecretStore, which in turn retreives it from GCP Secret Manager.
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongodb
+spec:
+  members: 1
+  type: ReplicaSet
+  version: "6.0.5"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: my-user
+      db: admin
+      passwordSecretRef:
+        name: database-admin-password
+      roles:
+        - name: clusterAdmin
+          db: admin
+        - name: userAdminAnyDatabase
+          db: admin
+        - name: readWriteAnyDatabase
+          db: admin
+      scramCredentialsSecretName: my-scram
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: zlib
+---
+# Setup FastAPI app. Configs are read from GCP SM through ESO SecretStore.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  labels:
+    app: backend-api
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      containers:
+      - name: backend-api
+        image: quiz-craft-api
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-admin-my-user
+              key: connectionString.standardSrv
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fastapi-configs
+              key: jwt_secret_key
+        - name: MAIL_SERVER_USER
+          valueFrom:
+            secretKeyRef:
+              name: fastapi-configs
+              key: mail_server_user
+        - name: MAIL_SERVER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: fastapi-configs
+              key: mail_server_password
+
+---
+# Expose FastAPI backend through a NodePort service on port 30000
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api-service
+spec:
+  type: NodePort
+  selector:
+    app: backend-api
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000
