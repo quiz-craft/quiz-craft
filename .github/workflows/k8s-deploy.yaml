@@ -66,6 +66,7 @@ jobs:
     - name: Deploy API Image
       run: |-
         kubectl apply -f K8s/secrets.yaml
+        kubectl apply -f K8s/configMaps.yaml
         kubectl apply -f K8s/main.yaml
         kubectl rollout status deployment/$DEPLOYMENT_NAME
         kubectl get services -o wide

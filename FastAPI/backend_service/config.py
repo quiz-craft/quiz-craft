@@ -4,7 +4,6 @@ FastAPI server configuration
 
 # pylint: disable=too-few-public-methods
 from datetime import timedelta
-import os
 
 from decouple import config
 from pydantic import BaseModel
