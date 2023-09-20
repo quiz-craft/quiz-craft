@@ -52,7 +52,7 @@ jobs:
     - name: Build API Image
       run: |-
         docker build \
-          --tag "gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
+          --tag "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           ./FastAPI
@@ -60,7 +60,7 @@ jobs:
     # Push the Docker image to Google Container Registry
     - name: Publish API Image
       run: |-
-        docker push "gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"
+        docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy API Image

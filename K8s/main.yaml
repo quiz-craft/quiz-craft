@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: backend-api
-        image: gcr.io/quiz-craft-398712/quiz-craft-api:latest
+        image: eu.gcr.io/quiz-craft-398712/quiz-craft-api
         ports:
         - containerPort: 3000
         env:
