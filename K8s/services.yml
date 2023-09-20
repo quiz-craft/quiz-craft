@@ -1,0 +1,12 @@
+# Expose FastAPI backend through a ClusterIP service on port 30000
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api-service
+spec:
+  selector:
+    app: backend-api
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: backend-api-svc
