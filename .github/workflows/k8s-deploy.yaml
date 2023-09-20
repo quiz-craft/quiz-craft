@@ -10,7 +10,7 @@ env:
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   DEPLOYMENT_NAME: ${{ secrets.GKE_DEPLOYMENT_NAME }}
-  API_IMAGE: quiz-craft-api
+  API_IMAGE_NAME: quiz-craft-api
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
   GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
 
@@ -52,7 +52,7 @@ jobs:
     - name: Build API Image
       run: |-
         docker build \
-          --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
+          --tag "gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           ./FastAPI
@@ -60,7 +60,7 @@ jobs:
     # Push the Docker image to Google Container Registry
     - name: Publish API Image
       run: |-
-        docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+        docker push "gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy API Image
