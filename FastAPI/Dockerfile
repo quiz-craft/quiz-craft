@@ -1,12 +1,11 @@
 FROM python:3.10
 
-WORKDIR /code
+WORKDIR /app
 
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt /app/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-COPY ./backend_service /code/backend_service
-COPY ./.env /code/
+COPY ./backend_service /app/backend_service
 
 CMD ["uvicorn", "backend_service.main:app", "--host", "0.0.0.0", "--port", "3000"]

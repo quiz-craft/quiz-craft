@@ -12,7 +12,7 @@ spec:
     authentication:
       modes: ["SCRAM"]
   users:
-    - name: my-user
+    - name: admin
       db: admin
       passwordSecretRef:
         name: database-admin-password
@@ -54,23 +54,34 @@ spec:
         - name: MONGO_URI
           valueFrom:
             secretKeyRef:
-              name: mongodb-admin-my-user
+              name: mongodb-admin-admin
               key: connectionString.standardSrv
         - name: JWT_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: fastapi-configs
+              name: fastapi-secrets
               key: jwt_secret_key
         - name: MAIL_SERVER_USER
           valueFrom:
             secretKeyRef:
-              name: fastapi-configs
+              name: fastapi-secrets
               key: mail_server_user
         - name: MAIL_SERVER_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: fastapi-configs
+              name: fastapi-secrets
               key: mail_server_password
+        volumeMounts:
+        - name: decouple-config
+          mountPath: "/app"
+          readOnly: true
+      volumes:
+      - name: decouple-config
+        configMap:
+          name: fastapi-configMap
+          items:
+          - key: "decouple.config"
+            path: ".env"
 
 ---
 # Expose FastAPI backend through a NodePort service on port 30000

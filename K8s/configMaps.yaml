@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fastapi-configMap
+data:
+  decouple.config: |
+    JWT_EXPIRATION_MINUTES= 1440
+    testing= false
+    MAIL_SERVER= "smpt-relay.brevo.com"
+    MAIL_PORT= 587
+    ROOT_URL= ""
