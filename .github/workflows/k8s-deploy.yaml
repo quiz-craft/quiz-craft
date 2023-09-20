@@ -11,6 +11,8 @@ env:
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   DEPLOYMENT_NAME: ${{ secrets.GKE_DEPLOYMENT_NAME }}
   API_IMAGE: quiz-craft-api
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+  GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
 
 jobs:
   setup-build-publish-deploy:
@@ -28,8 +30,8 @@ jobs:
       uses: 'google-github-actions/auth@v1.1.1'
       with:
           create_credentials_file: 'true'
-          workload_identity_provider: '{{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: '{{ secrets.GOOGLE_SERVICE_ACCOUNT }}'
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
     - id: 'gcloud'
       name: 'gcloud'
       run: |-
