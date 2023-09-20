@@ -73,7 +73,7 @@ spec:
               key: mail_server_password
         volumeMounts:
         - name: decouple-config
-          mountPath: "/app"
+          mountPath: "/config/fastapi"
           readOnly: true
       volumes:
       - name: decouple-config

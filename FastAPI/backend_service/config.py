@@ -5,8 +5,10 @@ FastAPI server configuration
 # pylint: disable=too-few-public-methods
 from datetime import timedelta
 
-from decouple import config
+from decouple import AutoConfig
 from pydantic import BaseModel
+
+config = AutoConfig(search_path='/config/fastapi/')
 
 
 class Settings(BaseModel):
