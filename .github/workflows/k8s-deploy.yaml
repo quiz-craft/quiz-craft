@@ -35,7 +35,7 @@ jobs:
     - id: 'gcloud'
       name: 'gcloud'
       run: |-
-        gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
+        gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
   # Configure Docker to use the gcloud command-line tool as a credential
   # helper for authentication
     - name: Setup Docker to use gcloud container registry
