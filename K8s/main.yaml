@@ -78,7 +78,7 @@ spec:
       volumes:
       - name: decouple-config
         configMap:
-          name: fastapi-configMap
+          name: fastapi-configmap
           items:
           - key: "decouple.config"
             path: ".env"

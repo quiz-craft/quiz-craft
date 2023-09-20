@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fastapi-configMap
+  name: fastapi-configmap
 data:
   decouple.config: |
     JWT_EXPIRATION_MINUTES= 1440
