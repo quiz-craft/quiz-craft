@@ -2,11 +2,48 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-api-service
+  name: backend-api
 spec:
   selector:
     app: backend-api
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: backend-api-svc
+      targetPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+      targetPort: 8000
+
+    - protocol: TCP
+      name: admin
+      port: 8080
+      targetPort: 8080
+    - protocol: TCP
+      name: websecure
+      port: 443
+      targetPort: 4443
+  selector:
+    app: traefik
+  type: LoadBalancer
+  loadBalancerIP: "35.228.188.69"
+  loadBalancerSourceRanges:
+  - 0.0.0.0/0
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: traefik-ingress-controller
+
+---
