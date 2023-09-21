@@ -21,8 +21,27 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: stripprefix-backend-api
+  name: stripprefix-backend-api-prod
 spec:
   stripPrefix:
     prefixes:
-      - /api
+      - /api/v1
+---
+# Strip prefix for FastAPI
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-backend-api-dev
+spec:
+  stripPrefix:
+    prefixes:
+      - /api/dev
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: traefik-ingress-controller
+
+---

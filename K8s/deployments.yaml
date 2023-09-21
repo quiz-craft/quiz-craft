@@ -1,23 +1,23 @@
-# Setup FastAPI app. Configs are read from GCP SM through ESO SecretStore.
+# Setup FastAPI production app. Secrets are read from GCP SM through ESO SecretStore and other configs come from a ConfigMap
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-api
+  name: backend-api-prod
   labels:
-    app: backend-api
+    app: backend-api-prod
     tier: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend-api
+      app: backend-api-prod
   template:
     metadata:
       labels:
-        app: backend-api
+        app: backend-api-prod
     spec:
       containers:
-      - name: backend-api
+      - name: backend-api-prod
         image: eu.gcr.io/quiz-craft-398712/quiz-craft-api
         ports:
         - containerPort: 3000
@@ -49,7 +49,54 @@ spec:
       volumes:
       - name: decouple-config
         configMap:
-          name: fastapi-configmap
+          name: fastapi-configmap-prod
+          items:
+          - key: "decouple.config"
+            path: ".env"
+
+---
+# Setup FastAPI development app.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api-dev
+  labels:
+    app: backend-api-dev
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api-dev
+  template:
+    metadata:
+      labels:
+        app: backend-api-dev
+    spec:
+      containers:
+      - name: backend-api-dev
+        image: eu.gcr.io/quiz-craft-398712/quiz-craft-api
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-admin-admin
+              key: connectionString.standardSrv
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fastapi-secrets
+              key: jwt_secret_key
+        volumeMounts:
+        - name: decouple-config
+          mountPath: "/config/fastapi"
+          readOnly: true
+      volumes:
+      - name: decouple-config
+        configMap:
+          name: fastapi-configmap-dev
           items:
           - key: "decouple.config"
             path: ".env"

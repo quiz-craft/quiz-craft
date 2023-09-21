@@ -20,6 +20,7 @@ class Settings(BaseModel):
 
     # Mongo Engine settings
     mongo_uri: str = config("MONGO_URI")
+    mongo_db_name: str = config("MONGO_DB_NAME")
 
     # Security settings
     jwt_secret_key: str = config("JWT_SECRET_KEY")
@@ -30,8 +31,8 @@ class Settings(BaseModel):
     # FastMail SMTP server settings
     mail_server: str = config("MAIL_SERVER", default="mail.quiz-craft.com")
     mail_port: int = config("MAIL_PORT", default=587, cast=int)
-    mail_username: str = config("MAIL_SERVER_USER")
-    mail_password: str = config("MAIL_SERVER_PASSWORD")
+    mail_username: str = config("MAIL_SERVER_USER", default="root")
+    mail_password: str = config("MAIL_SERVER_PASSWORD", default="root")
     mail_sender: str = config("MAIL_SENDER", default="noreply@quiz-craft.com")
 
     testing: bool = config("TESTING", default=False, cast=bool)

@@ -1,38 +1,46 @@
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: httpingressroute
-  namespace: default
-spec:
-  entryPoints:
-    - web
-  routes:
-  - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api`)
-    kind: Rule
-    services:
-    - name: backend-api
-      port: 3000
-
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: tlsingressroute
+  name: backend-api-prod
   namespace: default
 spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api`)
+  - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api/v1`)
     kind: Rule
     services:
-    - name: backend-api
+    - name: backend-api-prod
       port: 3000
     kind: Rule
     services:
-    - name: backend-api
+    - name: backend-api-prod
       port: 3000
     middlewares:
-      - name: stripprefix-backend-api
+      - name: stripprefix-backend-api-prod
+  tls:
+    certResolver: myresolver
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: backend-api-dev
+  namespace: default
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api/dev`)
+    kind: Rule
+    services:
+    - name: backend-api-dev
+      port: 3000
+    kind: Rule
+    services:
+    - name: backend-api-dev
+      port: 3000
+    middlewares:
+      - name: stripprefix-backend-api-dev
   tls:
     certResolver: myresolver

@@ -1,12 +1,39 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fastapi-configmap
+  name: fastapi-configmap-prod
 data:
   decouple.config: |
     JWT_EXPIRATION_MINUTES= 1440
-    testing= false
+    MONGO_DB_NAME="quiz-craft-prod"
+    TESTING= false
     MAIL_SERVER= "smpt-relay.brevo.com"
     MAIL_PORT= 587
-    ROOT_URL= "/api"
+    ROOT_URL= "/api/v1"
+    DOMAIN_PATH= "https://www.quiz-craft.com"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fastapi-configmap-dev
+data:
+  decouple.config: |
+    MONGO_DB_NAME="quiz-craft-dev"
+    JWT_EXPIRATION_MINUTES= 1440
+    TESTING= true
+    ROOT_URL= "/api/dev"
+    DOMAIN_PATH= "https://www.quiz-craft.com"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fastapi-configmap-test
+data:
+  decouple.config: |
+    MONGO_DB_NAME="quiz-craft-test"
+    JWT_EXPIRATION_MINUTES= 1440
+    TESTING= true
+    ROOT_URL= ""
     DOMAIN_PATH= "https://www.quiz-craft.com"
