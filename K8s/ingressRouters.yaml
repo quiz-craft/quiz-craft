@@ -32,5 +32,7 @@ spec:
     services:
     - name: backend-api
       port: 3000
+    middlewares:
+      - name: stripprefix-backend-api
   tls:
     certResolver: myresolver

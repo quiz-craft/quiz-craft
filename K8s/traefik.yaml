@@ -17,3 +17,12 @@ spec:
   sniStrict: true
 
 ---
+# Strip prefix for FastAPI
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-backend-api
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
