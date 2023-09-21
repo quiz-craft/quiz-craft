@@ -14,7 +14,9 @@ config = AutoConfig(search_path='/config/fastapi/')
 class Settings(BaseModel):
     """Server config settings"""
 
+    # Server domain and root paths
     root_url: str = config("ROOT_URL")
+    domain_path: str = config("DOMAIN_PATH")
 
     # Mongo Engine settings
     mongo_uri: str = config("MONGO_URI")

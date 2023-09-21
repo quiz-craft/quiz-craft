@@ -8,4 +8,5 @@ data:
     testing= false
     MAIL_SERVER= "smpt-relay.brevo.com"
     MAIL_PORT= 587
-    ROOT_URL= ""
+    ROOT_URL= "/api"
+    DOMAIN_PATH= "https://www.quiz-craft.com"

@@ -11,7 +11,7 @@ from backend_service.models.user import User
 from backend_service.models.quiz import Quiz
 
 
-app = FastAPI()
+app = FastAPI(root_path=CONFIG.root_url)
 
 app.add_middleware(
     CORSMiddleware,

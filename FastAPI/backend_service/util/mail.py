@@ -24,7 +24,7 @@ mail = FastMail(mail_conf)
 async def send_verification_email(email: str, token: str):
     """Send user verification email"""
     # Change this later to public endpoint
-    url = CONFIG.root_url + "/mail/verify/" + token
+    url = CONFIG.domain_path + CONFIG.root_url + "/mail/verify/" + token
     if CONFIG.testing:
         print("POST to " + url)
         return url, token
@@ -40,7 +40,7 @@ async def send_verification_email(email: str, token: str):
 async def send_password_reset_email(email: str, token: str):
     """Sends password reset email"""
     # Change this later to public endpoint
-    url = CONFIG.root_url + "/auth/reset-password/" + token
+    url = CONFIG.domain_path + CONFIG.root_url + "/auth/reset-password/" + token
     if CONFIG.testing:
         print("POST to " + url)
         return url, token
