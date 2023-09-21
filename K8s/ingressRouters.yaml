@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: HostRegexp(`{domain:(www\.)?quiz-craft\.com}`) && PathPrefix(`/api`)
+  - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api`)
     kind: Rule
     services:
     - name: backend-api
@@ -23,7 +23,6 @@ spec:
   entryPoints:
     - websecure
   routes:
-    #- match: HostRegexp(`{domain:(www\.)?quiz-craft\.com}`) && PathPrefix(`/api`)
   - match: Host(`www.quiz-craft.com`,"quiz-craft.com") && PathPrefix(`/api`)
     kind: Rule
     services:
