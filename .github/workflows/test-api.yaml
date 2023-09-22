@@ -49,8 +49,8 @@ jobs:
         run: |-
           kubectl apply -f K8s/configMaps.yaml
           kubectl apply -f K8s/secrets.yaml
-          kubectl apply -f K8s/deployments.yaml -l app=$DEPLOYMENT_NAME
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl apply -f K8s/deployments.yaml -l app=$API_DEPLOYMENT_NAME
+          kubectl rollout status deployment/$API_DEPLOYMENT_NAME
 
       - name: Run Robot test jobs
         run: |-
