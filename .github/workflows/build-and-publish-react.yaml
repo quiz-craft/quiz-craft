@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - client
+  workflow_dispatch:
 
 
 env:
