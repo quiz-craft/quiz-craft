@@ -23,65 +23,65 @@ jobs:
     permissions:
       id-token: write # This is required for requesting the JWT
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - id: 'gcloud-auth'
-      name: 'Authenticate to GCP'
-      uses: 'google-github-actions/auth@v1.1.1'
-      with:
-          create_credentials_file: 'true'
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
           service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
-    - id: 'gcloud'
-      name: 'gcloud'
-      run: |-
-        gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
-  # Configure Docker to use the gcloud command-line tool as a credential
-  # helper for authentication
-    - name: Setup Docker to use gcloud container registry
-      run: |-
-        gcloud --quiet auth configure-docker
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - name: Setup Docker to use gcloud container registry
+        run: |-
+          gcloud --quiet auth configure-docker
 
-    # Get the GKE credentials so we can deploy to the cluster
-    - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
-      with:
-        cluster_name: ${{ env.GKE_CLUSTER }}
-        location: ${{ env.GKE_ZONE }}
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
 
-    # Build the Docker image
-    - name: Build API Image
-      run: |-
-        docker build \
-          --tag "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" \
-          ./FastAPI
+      # Build the Docker image
+      - name: Build API Image
+        run: |-
+          docker build \
+            --tag "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            ./FastAPI
 
-    # Build the Docker image
-    - name: Build React Image
-      run: |-
-        docker build \
-          --tag "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" \
-          ./client/quiz-craft
+      # Build the Docker image
+      - name: Build React Image
+        run: |-
+          docker build \
+            --tag "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            ./client/quiz-craft
 
-    # Push the Docker image to Google Container Registry
-    - name: Publish API Image
-      run: |-
-        docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"`
+      # Push the Docker image to Google Container Registry
+      - name: Publish API Image
+        run: |-
+          docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"
 
-    # Push the Docker image to Google Container Registry
-    - name: Publish React Image
-      run: |-
-        docker push "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA"
+      # Push the Docker image to Google Container Registry
+      - name: Publish React Image
+        run: |-
+          docker push "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA"
 
-    # Deploy the Docker image to the GKE cluster
-    - name: Deploy API Image
-      run: |-
-        kubectl apply -f K8s/secrets.yaml
-        kubectl apply -f K8s/configMaps.yaml
-        kubectl set image deployments/$DEPLOYMENT_NAME $DEPLOYMENT_NAME=eu.gcr.io/quiz-craft-398712/quiz-craft-api:$GITHUB_SHA
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
-        kubectl get services -o wide
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy API Image
+        run: |-
+          kubectl apply -f K8s/secrets.yaml
+          kubectl apply -f K8s/configMaps.yaml
+          kubectl set image deployments/$DEPLOYMENT_NAME $DEPLOYMENT_NAME=eu.gcr.io/quiz-craft-398712/quiz-craft-api:$GITHUB_SHA
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
+          kubectl get services -o wide
