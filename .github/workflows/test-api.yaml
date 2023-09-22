@@ -55,7 +55,7 @@ jobs:
       - name: Run Robot test jobs
         run: |-
           kubectl apply -f K8s/jobs.yaml
-          kubectl wait --for=condition=complete job/$ROBOT_JOB_NAME --timeout=120
+          kubectl wait --for=condition=complete job/$ROBOT_JOB_NAME --timeout=120s
   clean-up:
     if: ${{ always() }}
     needs: [deployment-and-test]
