@@ -1,12 +1,15 @@
-import "./App.css";
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import "./App.css";
+import { isAuthenticated } from "./services/AuthStoreService";
 import SignIn from "./pages/signin/SignIn";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 import SignUp from "./pages/signup/SignUp";
 import Profile from "./pages/profile/Profile";
-import { isAuthenticated } from "./services/AuthStoreService";
 import CreateQuiz from "./pages/quiz/create/CreateQuiz";
 import TakeQuiz from "./pages/quiz/take/TakeQuiz";
 
@@ -35,6 +38,18 @@ function App() {
           </Routes>
           </div>
           <Footer/>
+          <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          />
       </main>
       </BrowserRouter>
   );

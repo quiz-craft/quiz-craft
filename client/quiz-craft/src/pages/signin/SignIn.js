@@ -1,6 +1,8 @@
 import {Link} from "react-router-dom";
 import { baseUrl } from "../../services/Settings";
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+
 import axios from 'axios';
 import { setToken } from "../../services/AuthStoreService";
 
@@ -14,7 +16,7 @@ const SignIn = ({ handleLogin }) => {
         client_secret: '', 
     });
 
-    function sendRequest(){
+    function sendRequest() {
         const headers = {
           'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,6 +28,7 @@ const SignIn = ({ handleLogin }) => {
           console.log('Response:', response.data);
           setToken(response.data);
           handleLogin();
+          toast.success('Successfully logged in!');
         })
         .catch((error) => {
           // Handle errors here
