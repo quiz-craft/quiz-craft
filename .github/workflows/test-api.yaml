@@ -11,7 +11,7 @@ env:
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   API_DEPLOYMENT_NAME: backend-api-test
-  ROBOT_JOB_NAME: robot_tests
+  ROBOT_JOB_NAME: robot-tests
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
   GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
 
@@ -88,4 +88,5 @@ jobs:
 
       - name: Delete test API deployment
         run: |-
+          kubectl delete jobs/$ROBOT_JOB_NAME || echo 0
           kubectl delete deployments/$API_DEPLOYMENT_NAME || echo 0
