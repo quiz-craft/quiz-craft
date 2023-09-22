@@ -1,0 +1,91 @@
+name: Test API
+
+
+on:
+ workflow_run:
+    workflows: ["Build and Publish API Image","Build and Publish Robot Image"]
+    types:
+      - completed
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  API_DEPLOYMENT_NAME: backend-api-test
+  ROBOT_JOB_NAME: robot_tests
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+  GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+
+jobs:
+  deployment-and-test:
+    name: Setup test api deplyoment and run tests
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Deploy test API
+        run: |-
+          kubectl apply -f K8s/configMaps.yaml
+          kubectl apply -f K8s/secrets.yaml
+          kubectl apply -f K8s/deployments.yaml -l app=$DEPLOYMENT_NAME
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
+
+      - name: Run Robot test jobs
+        run: |-
+          kubectl apply -f K8s/jobs.yaml
+          kubectl wait --for=condition=complete job/$ROBOT_JOB_NAME --timeout=120
+  clean-up:
+    if: ${{ always() }}
+    needs: [deployment-and-test]
+    name: Clean up backend test deployment
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Delete test API deployment
+        run: |-
+          kubectl delete deployments/$API_DEPLOYMENT_NAME || echo 0

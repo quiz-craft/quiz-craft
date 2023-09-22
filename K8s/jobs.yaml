@@ -18,6 +18,7 @@ spec:
           value: "http://backend-api-test"
       restartPolicy: Never
   backoffLimit: 5
+  activeDeadlineSeconds: 180
   podFailurePolicy:
     rules:
     - action: FailJob
