@@ -2,7 +2,7 @@ name: Deploy React Image to GKE
 
 on:
  workflow_run:
-    workflows: ["Build and Publish Robot Image"]
+    workflows: ["Build and Publish React Image"]
     types:
       - completed
 
