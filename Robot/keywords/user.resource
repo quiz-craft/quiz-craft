@@ -5,8 +5,6 @@ Library           Collections
 
 
 *** Variables ***
-${MongoURI}       mongodb://robot:1234@localhost:27017
-${DBName}         quiz-craft-test
 ${DATA_DIR}       ${CURDIR}/../data
 
 

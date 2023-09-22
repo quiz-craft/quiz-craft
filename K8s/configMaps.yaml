@@ -36,4 +36,4 @@ data:
     JWT_EXPIRATION_MINUTES= 1440
     TESTING= true
     ROOT_URL= ""
-    DOMAIN_PATH= "https://www.quiz-craft.com"
+    DOMAIN_PATH= "http://backend-api-test"

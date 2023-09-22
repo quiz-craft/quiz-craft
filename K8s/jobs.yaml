@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: robot-tests
+spec:
+  template:
+    spec:
+      containers:
+      - name: robot
+        image: eu.gcr.io/quiz-craft-398712/quiz-craft-robot
+        env:
+        - name: MONGO_CONNECTION_SRV
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-admin-admin
+              key: connectionString.standardSrv
+        - name: API_ROOT_PATH
+          value: "http://backend-api-test"
+      restartPolicy: Never
+  backoffLimit: 5
+  podFailurePolicy:
+    rules:
+    - action: FailJob
+      onExitCodes:
+        containerName: robot
+        operator: NotIn
+        values: [0]
+    - action: Ignore
+      onPodConditions:
+      - type: DisruptionTarget

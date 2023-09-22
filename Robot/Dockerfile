@@ -13,4 +13,4 @@ COPY ./tests tests/
 
 ENV PYTHONPATH=/robot/libraries
 
-CMD ["robot", "tests"]
+CMD ["robot", "-X", "tests"]
