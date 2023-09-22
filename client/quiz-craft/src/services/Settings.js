@@ -1,1 +1,1 @@
-export const baseUrl = 'http://34.88.249.185:3000';
+export const baseUrl = 'https://quiz-craft.com/api/v1';
