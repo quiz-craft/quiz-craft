@@ -1,25 +1,16 @@
 *** Settings ***
-Documentation     This resource file includes keywords used by other test suites.
-Library           MongoDB   ${MongoURI}   ${DBName}
+Documentation     This resource file includes keywords used for user actions and tests.
 Library           OperatingSystem
 Library           Collections
 
 *** Variables ***
 ${MongoURI}       mongodb://robot:1234@localhost:27017
 ${DBName}         quiz-craft-test
+${DATA_DIR}       ${CURDIR}/../data
 
 *** Keywords ***
-Clear Test Database
-  Drop Database
-
-Read JSON File
-  [Arguments]   ${file_name}
-  ${json}=  Get file  ${file_name}
-  ${dict}=  Evaluate  json.loads('''${json}''')   json
-  [Return]  ${dict}
-
 Create Test User And Return Auth Header
-  ${test_user}=   Read JSON File  ${CURDIR}/data/user/register.json
+  ${test_user}=   Read JSON File  ${DATA_DIR}/user/register.json
   ${headers}=   Create User And Return Auth Header  ${test_user}
   [Return]  ${headers}
 
