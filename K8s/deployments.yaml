@@ -149,6 +149,30 @@ spec:
             path: ".env"
 
 ---
+# Setup FastAPI React app.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-react-prod
+  labels:
+    app: frontend-react-prod
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-react-prod
+  template:
+    metadata:
+      labels:
+        app: frontend-react-prod
+    spec:
+      containers:
+      - name: frontend-react-prod
+        image: eu.gcr.io/quiz-craft-398712/quiz-craft-react
+        ports:
+        - containerPort: 80
+       
 ---
 kind: Deployment
 apiVersion: apps/v1
