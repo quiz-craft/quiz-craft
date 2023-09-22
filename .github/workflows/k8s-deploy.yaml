@@ -58,14 +58,14 @@ jobs:
           --build-arg GITHUB_REF="$GITHUB_REF" \
           ./FastAPI
 
-  # Build the Docker image
-      - name: Build React Image
-        run: |-
-          docker build \
-            --tag "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" \
-            ./client/quiz-craft
+    # Build the Docker image
+    - name: Build React Image
+      run: |-
+        docker build \
+          --tag "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" \
+          ./client/quiz-craft
 
     # Push the Docker image to Google Container Registry
     - name: Publish API Image
@@ -73,9 +73,9 @@ jobs:
         docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"`
 
     # Push the Docker image to Google Container Registry
-        - name: Publish React Image
-          run: |-
-            docker push "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA"
+    - name: Publish React Image
+      run: |-
+        docker push "eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA"
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy API Image
