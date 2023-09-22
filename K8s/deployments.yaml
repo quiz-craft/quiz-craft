@@ -102,6 +102,54 @@ spec:
             path: ".env"
 
 ---
+# Setup FastAPI test app.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api-test
+  labels:
+    app: backend-api-test
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api-test
+  template:
+    metadata:
+      labels:
+        app: backend-api-test
+    spec:
+      containers:
+      - name: backend-api-test
+        image: eu.gcr.io/quiz-craft-398712/quiz-craft-api
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-admin-admin
+              key: connectionString.standardSrv
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: fastapi-secrets
+              key: jwt_secret_key
+        volumeMounts:
+        - name: decouple-config
+          mountPath: "/config/fastapi"
+          readOnly: true
+      volumes:
+      - name: decouple-config
+        configMap:
+          name: fastapi-configmap-dev
+          items:
+          - key: "decouple.config"
+            path: ".env"
+
+---
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
