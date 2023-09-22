@@ -24,18 +24,19 @@ function App() {
     setIsUserLoggedIn(false);
   };
 
+  
   return (
     <BrowserRouter>
       <main className="flex flex-col h-screen">
           <Header isLoggedIn={isUserLoggedIn} />
           <div className="flex flex-grow flex-col items-center justify-normal m-20 p-10">
-          <Routes>
-            <Route path="signin" element={<SignIn handleLogin={handleLogin}  />} />
-            <Route path="signup" element={<SignUp />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="quiz/create" element={<CreateQuiz />} />
-            <Route path="quiz/take" element={<TakeQuiz />} />
-          </Routes>
+            <Routes>
+              <Route path="signin" element={<SignIn handleLogin={handleLogin}  />} />
+              <Route path="signup" element={<SignUp />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="quiz/create" element={<CreateQuiz />} />
+              <Route path="quiz/take" element={<TakeQuiz />} />
+            </Routes>
           </div>
           <Footer/>
           <ToastContainer
