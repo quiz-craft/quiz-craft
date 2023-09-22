@@ -5,7 +5,7 @@ Library           OperatingSystem
 Library           Collections
 
 *** Variables ***
-${MongoURI}       mongodb://robot:1234@localhost:27017
+${MongoURI}       %{MONGO_CONNECTION_SRV}
 ${DBName}         quiz-craft-test
 
 *** Keywords ***

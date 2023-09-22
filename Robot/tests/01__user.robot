@@ -7,7 +7,7 @@ Resource          ../keywords/user.resource
 Resource          ../keywords/util.resource
 
 Suite Setup   Run Keywords  Clear Test Database
-...           AND           Create Session  quizcraft   http://localhost:3000
+...           AND           Create Session  quizcraft  %{API_ROOT_PATH}
 Test Teardown     Clear Test Database
 
 *** Variables ***

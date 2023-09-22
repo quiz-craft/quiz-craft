@@ -3,10 +3,12 @@ Documentation     This resource file includes keywords used for user actions and
 Library           OperatingSystem
 Library           Collections
 
+
 *** Variables ***
 ${MongoURI}       mongodb://robot:1234@localhost:27017
 ${DBName}         quiz-craft-test
 ${DATA_DIR}       ${CURDIR}/../data
+
 
 *** Keywords ***
 Create Test User And Return Auth Header
