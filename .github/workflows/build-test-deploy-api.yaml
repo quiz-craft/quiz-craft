@@ -1,0 +1,240 @@
+name: Build, Test and Deploy API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - FastAPI
+      - Robot
+  workflow_dispatch:
+
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  API_IMAGE_NAME: quiz-craft-api
+  ROBOT_IMAGE_NAME: quiz-craft-robot
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  PROD_DEPLOYMENT_NAME: backend-api-prod
+  TEST_DEPLOYMENT_NAME: backend-api-test
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+  GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+
+jobs:
+  changes:
+    name: Check if FastAPI nad/or Robot files have changed
+    runs-on: ubuntu-latest
+    outputs:
+        api: ${{ steps.filter.outputs.api }}
+        robot: ${{ steps.filter.outputs.robot }}
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'FastAPI/**'
+            robot:
+              - 'Robot/**'
+  build-publish-api:
+    name: Setup, Build, and Publish API
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [changes]
+    if: ${{ needs.changes.outputs.api == 'true' }}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - name: Setup Docker to use gcloud container registry
+        run: |-
+          gcloud --quiet auth configure-docker
+
+      # Build API Docker image
+      - name: Build API Image
+        run: |-
+          docker build \
+            --tag "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA" \
+            --tag "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:latest" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            ./FastAPI
+
+      # Push API Docker image to Google Container Registry
+      - name: Publish API Image
+        run: |-
+          docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA"
+          docker push "eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:latest"
+
+  build-publish-robot:
+    name: Setup, Build, and Publish Robot Image
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [changes]
+    if: ${{ needs.changes.outputs.api == 'true' }}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - name: Setup Docker to use gcloud container registry
+        run: |-
+          gcloud --quiet auth configure-docker
+
+      # Build API Docker image
+      - name: Build Robot Image
+        run: |-
+          docker build \
+            --tag "eu.gcr.io/$PROJECT_ID/$ROBOT_IMAGE_NAME:$GITHUB_SHA" \
+            --tag "eu.gcr.io/$PROJECT_ID/$ROBOT_IMAGE_NAME:latest" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            ./Robot
+
+      # Push API Docker image to Google Container Registry
+      - name: Publish Robot Image
+        run: |-
+          docker push "eu.gcr.io/$PROJECT_ID/$ROBOT_IMAGE_NAME:$GITHUB_SHA"
+          docker push "eu.gcr.io/$PROJECT_ID/$ROBOT_IMAGE_NAME:latest"
+
+  run-tests:
+    name: Setup Test API Deplyoment and Run Test Jobs
+    runs-on: ubuntu-latest
+    needs: [build-publish-robot,build-publish-api]
+    environment: test
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Deploy test API
+        run: |-
+          kubectl apply -f K8s/configMaps.yaml
+          kubectl apply -f K8s/secrets.yaml
+          kubectl apply -f K8s/deployments.yaml -l app=$TEST_DEPLOYMENT_NAME
+          kubectl rollout status deployment/$TEST_DEPLOYMENT_NAME
+
+      - name: Run Robot test jobs
+        run: |-
+          kubectl apply -f K8s/jobs.yaml
+          kubectl wait --for=condition=complete job/$ROBOT_JOB_NAME --timeout=120s
+  clean-up:
+    if: ${{ always() }}
+    needs: [deployment-and-test]
+    name: Clean up backend test deployment
+    runs-on: ubuntu-latest
+    environment: test
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Delete test API deployment
+        run: |-
+          kubectl delete jobs/$ROBOT_JOB_NAME || echo 0
+          kubectl delete deployments/$TEST_DEPLOYMENT_NAME || echo 0
+
+  deploy-api:
+    name: Deploy API Image
+    runs-on: ubuntu-latest
+    needs: run-tests
+    environment: production
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: "gcloud-auth"
+        name: "Authenticate to GCP"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER}}
+          service_account: ${{ env.GOOGLE_SERVICE_ACCOUNT }}
+      - id: "gcloud"
+        name: "gcloud"
+        run: |-
+          gcloud auth login --brief --cred-file="${{ steps.gcloud-auth.outputs.credentials_file_path }}"
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy API Image
+        run: |-
+          kubectl apply -f K8s/secrets.yaml
+          kubectl apply -f K8s/configMaps.yaml
+          kubectl set image deployments/$PROD_DEPLOYMENT_NAME $PROD_DEPLOYMENT_NAME=eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA
+          kubectl rollout status deployment/$PROD_DEPLOYMENT_NAME
