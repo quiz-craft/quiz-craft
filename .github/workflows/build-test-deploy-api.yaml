@@ -169,7 +169,7 @@ jobs:
           kubectl wait --for=condition=complete job/$ROBOT_JOB_NAME --timeout=120s
   clean-up:
     if: ${{ always() }}
-    needs: [deployment-and-test]
+    needs: [run-tests]
     name: Clean up backend test deployment
     runs-on: ubuntu-latest
     environment: test
