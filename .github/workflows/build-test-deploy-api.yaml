@@ -14,6 +14,7 @@ env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   API_IMAGE_NAME: quiz-craft-api
   ROBOT_IMAGE_NAME: quiz-craft-robot
+  ROBOT_IMAGE_NAME: robot-tests
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
   GKE_ZONE: ${{ secrets.GKE_ZONE }}
   PROD_DEPLOYMENT_NAME: backend-api-prod
