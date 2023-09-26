@@ -240,5 +240,5 @@ jobs:
         run: |-
           kubectl apply -f K8s/secrets.yaml
           kubectl apply -f K8s/configMaps.yaml
-          kubectl set image deployments/$PROD_DEPLOYMENT_NAME $PROD_DEPLOYMENT_NAME=eu.gcr.io/$PROJECT_ID/$REACT_IMAGE_NAME:$GITHUB_SHA
+          kubectl set image deployments/$PROD_DEPLOYMENT_NAME $PROD_DEPLOYMENT_NAME=eu.gcr.io/$PROJECT_ID/$API_IMAGE_NAME:$GITHUB_SHA
           kubectl rollout status deployment/$PROD_DEPLOYMENT_NAME
