@@ -10,7 +10,7 @@ COPY ./package*.json .
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
 RUN npm ci 
 
-# Copy 
+# Copy other resources
 COPY ./tailwind.config.js .
 COPY ./src ./src
 COPY ./public ./public

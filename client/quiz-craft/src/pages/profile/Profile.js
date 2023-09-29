@@ -13,7 +13,6 @@ const Profile = () => {
     });
 
     const setProfile = (data) => {
-        console.log(data);
         // TODO: add json deserializer to convert snake case to camel case
         setFormData({
             firstName: data.first_name,
@@ -27,7 +26,6 @@ const Profile = () => {
     useEffect(() => {
         if (isAuthenticated) {
           getUser().then(({data}) => {
-            console.log(data)
             setProfile(data);
           }).catch(error => {
             console.error(error);
@@ -37,9 +35,7 @@ const Profile = () => {
 
     const sendRequest = () => {
         if(isAuthenticated){
-            console.log("here");
             setUser({first_name: formData.firstName, last_name: formData.lastName }).then(({data}) =>{
-                console.log(data);
             }).catch(error => {
                 console.error(error);
             })

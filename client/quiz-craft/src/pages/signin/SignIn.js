@@ -25,7 +25,6 @@ const SignIn = ({ handleLogin }) => {
         axios.post(baseUrl + "/auth/token", formDataEncoded, { headers })
         .then((response) => {
           // Handle the response here
-          console.log('Response:', response.data);
           setToken(response.data);
           handleLogin();
           toast.success('Successfully logged in!');

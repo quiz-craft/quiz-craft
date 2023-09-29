@@ -43,13 +43,11 @@ export function createAxiosClient({
 
   client.interceptors.response.use(
     (response) => {
-      console.log("client.interceptors.response is ok")
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
       return response;
     },
     (error) => {
-      console.log("client.interceptors.response faced error")
       const originalRequest = error.config;
       // In "axios": "^1.1.3" there is an issue with headers, and this is the workaround.
       originalRequest.headers = JSON.parse(

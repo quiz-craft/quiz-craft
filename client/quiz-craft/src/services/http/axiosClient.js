@@ -18,11 +18,9 @@ function getCurrentRefreshToken() {
 
 
 function setRefreshedTokens(tokens){
-    console.log('set tokens...')
 }
 
 async function logout(){
-    console.log('logout...')
     removeToken();
 }
 
