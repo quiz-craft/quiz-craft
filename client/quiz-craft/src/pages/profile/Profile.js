@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUser, setUser } from '../../services/http/HttpService';
 import { isAuthenticated } from '../../services/AuthStoreService';
-import { setToken } from "../../services/AuthStoreService";
 
 const Profile = () => {
     const [formData, setFormData] = useState({ 

@@ -56,6 +56,7 @@ export function createAxiosClient({
       const refreshToken = getCurrentRefreshToken();
       // If error, process all the requests in the queue and logout the user.
       const handleError = (error) => {
+        console.log("hanle error");
         processQueue(error);
         logout();
         return Promise.reject(error);
